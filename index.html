@@ -417,6 +417,10 @@
                     if (value > 100) return 'metric-high';
                     if (value > 50) return 'metric-medium';
                     return 'metric-low';
+                } else if (field === 'awp') {
+                    if (value > 70) return 'metric-high';
+                    if (value > 40) return 'metric-medium';
+                    return 'metric-low';
                 }
                 return '';
             };
@@ -427,7 +431,7 @@
 
             const exportData = () => {
                 const csvContent = [
-                    ['Team', 'Name', 'OPR', 'DPR', 'CCWM', 'Avg Score', 'Skills', 'Matches', 'Notes'],
+                    ['Team', 'Name', 'OPR', 'DPR', 'CCWM', 'Avg Score', 'AWP%', 'Skills', 'Matches', 'Notes'],
                     ...filteredTeams.map(team => [
                         team.number,
                         team.name || '',
@@ -435,6 +439,7 @@
                         (team.dpr || 0).toFixed(2),
                         (team.ccwm || 0).toFixed(2),
                         (team.avg_score || team.avgScore || 0).toFixed(1),
+                        team.awp_percent ? team.awp_percent.toFixed(1) : (team['AWP%'] || 0),
                         team.skills || 0,
                         team.matches || 0,
                         notes[team.number] || ''
@@ -486,13 +491,26 @@
                         const ccwm = parseFloat(parts[4]) || 0;
                         const avgScore = parseFloat(parts[5]) || 0;
                         
-                        let skills, matches;
-                        if (parts.length > 8) {
+                        // Handle different CSV formats
+                        let awp_percent, skills, matches;
+                        
+                        // New format with AWP%: Team,Name,OPR,DPR,CCWM,AvgScore,AWP%,Skills,Matches,Notes
+                        if (parts.length >= 9) {
+                            awp_percent = parseFloat(parts[6]) || 0;
                             skills = parseInt(parts[7]) || 0;
                             matches = parseInt(parts[8]) || 0;
-                        } else {
+                        }
+                        // Old format with win rate: Team,Name,OPR,DPR,CCWM,AvgScore,WinRate,Skills,Matches
+                        else if (parts.length > 8) {
+                            skills = parseInt(parts[7]) || 0;
+                            matches = parseInt(parts[8]) || 0;
+                            awp_percent = 0;
+                        }
+                        // Old format without win rate: Team,Name,OPR,DPR,CCWM,AvgScore,Skills,Matches
+                        else {
                             skills = parseInt(parts[6]) || 0;
                             matches = parseInt(parts[7]) || 0;
+                            awp_percent = 0;
                         }
 
                         return {
@@ -502,6 +520,8 @@
                             dpr,
                             ccwm,
                             avgScore,
+                            awp_percent,
+                            'AWP%': awp_percent,
                             skills,
                             matches
                         };
@@ -738,7 +758,7 @@
                             </div>
                             
                             <div className="overflow-x-auto">
-                                <table className="w-full" style={{minWidth: '800px'}}>
+                                <table className="w-full" style={{minWidth: '1000px'}}>
                                     <thead>
                                         <tr className="table-header">
                                             <th className="px-4 py-3 text-left sortable sticky left-0 bg-opacity-100" style={{minWidth: '80px'}} onClick={() => handleSort('number')}>
@@ -754,6 +774,9 @@
                                             <th className="px-4 py-3 text-center sortable" style={{minWidth: '80px'}} onClick={() => handleSort('ccwm')}>
                                                 CCWM {sortField === 'ccwm' && (sortDirection === 'asc' ? '↑' : '↓')}
                                             </th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '80px'}} onClick={() => handleSort('awp_percent')}>
+                                                AWP% {sortField === 'awp_percent' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
                                             <th className="px-4 py-3 text-center sortable" style={{minWidth: '80px'}} onClick={() => handleSort('skills')}>
                                                 SKILLS {sortField === 'skills' && (sortDirection === 'asc' ? '↑' : '↓')}
                                             </th>
@@ -766,13 +789,13 @@
                                     <tbody>
                                         {loading ? (
                                             <tr>
-                                                <td colSpan="8" className="px-4 py-12 text-center text-gray-400">
+                                                <td colSpan="9" className="px-4 py-12 text-center text-gray-400">
                                                     <div className="text-lg">Loading from cloud...</div>
                                                 </td>
                                             </tr>
                                         ) : filteredTeams.length === 0 ? (
                                             <tr>
-                                                <td colSpan="8" className="px-4 py-12 text-center text-gray-400">
+                                                <td colSpan="9" className="px-4 py-12 text-center text-gray-400">
                                                     <div className="text-lg mb-2">No data in cloud</div>
                                                     <div className="text-sm">Import a CSV to upload to cloud</div>
                                                 </td>
@@ -790,6 +813,9 @@
                                                     </td>
                                                     <td className={`px-4 py-3 text-center font-bold ${getMetricClass(team.ccwm, 'ccwm')}`}>
                                                         {(team.ccwm || 0).toFixed(1)}
+                                                    </td>
+                                                    <td className={`px-4 py-3 text-center ${getMetricClass(team.awp_percent || team['AWP%'], 'awp')}`}>
+                                                        {team.awp_percent ? `${team.awp_percent.toFixed(1)}%` : (team['AWP%'] ? `${parseFloat(team['AWP%']).toFixed(1)}%` : '0.0%')}
                                                     </td>
                                                     <td className={`px-4 py-3 text-center ${getMetricClass(team.skills, 'skills')}`}>
                                                         {team.skills || 0}
@@ -870,3 +896,9 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
