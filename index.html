@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VEX Scout">
+    <meta name="theme-color" content="#0a0e27">
+    <title>VEX Scout - Cloud Edition</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVkVYIFNjb3V0IENsb3VkIiwic2hvcnRfbmFtZSI6IlZFWCBTY291dCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGEwZTI3IiwidGhlbWVfY29sb3IiOiIjMDBmZjg4IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmclMjB4bWxucyUzRCUyN2h0dHAlM0ElMkYlMkZ3d3cudzMub3JnJTJGMjAwMCUyRnN2ZyUyNyUyMHdpZHRoJTNEJTI3MTkyJTI3JTIwaGVpZ2h0JTNEJTI3MTkyJTI3JTNFJTNDcmVjdCUyMHdpZHRoJTNEJTI3MTkyJTI3JTIwaGVpZ2h0JTNEJTI3MTkyJTI3JTIwZmlsbCUzRCUyNyUyMzBhMGUyNyUyNyUyRiUzRSUzQ3RleHQlMjB4JTNEJTI3NTAlMjUlMjclMjB5JTNEJTI3NTAlMjUlMjclMjBmb250LXNpemUlM0QlMjc4MCUyNyUyMHRleHQtYW5jaG9yJTNEJTI3bWlkZGxlJTI3JTIwZHklM0QlMjcuM2VtJTI3JTIwZmlsbCUzRCUyNyUyMzAwZmY4OCUyNyUzRVYlM0MlMkZ0ZXh0JTNFJTNDJTJGc3ZnJTNFIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwiLCJzaXplcyI6IjE5MngxOTIifV19">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e7ff;
+            min-height: 100vh;
+        }
+        
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        .header-glow {
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .stat-card {
+            background: rgba(30, 40, 70, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.15);
+        }
+        
+        .data-table {
+            background: rgba(15, 20, 35, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .table-header {
+            background: rgba(0, 255, 136, 0.1);
+            border-bottom: 2px solid #00ff88;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .table-row {
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            transition: background 0.2s ease;
+        }
+        
+        .table-row:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #0a0e27;
+            font-weight: 700;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(100, 116, 139, 0.3);
+            color: #e0e7ff;
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(100, 116, 139, 0.5);
+            border-color: #00ff88;
+        }
+        
+        .metric-high {
+            color: #00ff88;
+            font-weight: 700;
+        }
+        
+        .metric-medium {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        
+        .metric-low {
+            color: #ef4444;
+        }
+        
+        input, textarea, select {
+            background: rgba(15, 20, 35, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #e0e7ff;
+            outline: none;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #00ff88;
+        }
+        
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .sortable:hover {
+            color: #00ff88;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .data-table {
+                font-size: 12px;
+            }
+            
+            .table-header th {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+            
+            .table-row td {
+                padding: 8px 6px;
+            }
+            
+            input[type="text"] {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .btn-primary, .btn-secondary {
+                min-height: 44px; /* Apple's recommended touch target */
+                font-size: 14px;
+            }
+            
+            .stat-card {
+                padding: 12px;
+            }
+        }
+        
+        /* Prevent text selection on double-tap */
+        .sortable, .btn-primary, .btn-secondary {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Better scrolling on mobile */
+        .overflow-x-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .setup-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-line"></div>
+    
+    <div id="root"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ========================================
+        // FIREBASE CONFIGURATION
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtRzeT3TCKU-MVPDzQPRgBtBGW0j0NZIQ",
+            authDomain: "vex-scout-4ce37.firebaseapp.com",
+            projectId: "vex-scout-4ce37",
+            storageBucket: "vex-scout-4ce37.firebasestorage.app",
+            messagingSenderId: "365540722356",
+            appId: "1:365540722356:web:40173c4cd053f17a6bb9e1"
+        };
+
+        // Initialize Firebase
+        let db = null;
+        let firebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            firebaseInitialized = true;
+            console.log("✓ Firebase initialized successfully!");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            alert("Firebase setup error. Check console for details.");
+        }
+
+        function VEXScoutCloud() {
+            const [eventCode, setEventCode] = useState('RE-V5RC-25-0192');
+            const [teams, setTeams] = useState([]);
+            const [sortField, setSortField] = useState('ccwm');
+            const [sortDirection, setSortDirection] = useState('desc');
+            const [filterText, setFilterText] = useState('');
+            const [notes, setNotes] = useState({});
+            const [savedEvents, setSavedEvents] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [saving, setSaving] = useState(false);
+            const [showSetup, setShowSetup] = useState(!firebaseInitialized);
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+            const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+            // PWA Install handling
+            useEffect(() => {
+                const handleBeforeInstallPrompt = (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                    setShowInstallPrompt(true);
+                };
+
+                window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+                return () => {
+                    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+                };
+            }, []);
+
+            const handleInstallClick = async () => {
+                if (!deferredPrompt) return;
+
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('PWA installed');
+                }
+                
+                setDeferredPrompt(null);
+                setShowInstallPrompt(false);
+            };
+
+            // Load events list and current event on mount
+            useEffect(() => {
+                if (firebaseInitialized) {
+                    loadSavedEventsList();
+                    loadEventData(eventCode);
+                }
+            }, []);
+
+            // Auto-save when teams or notes change (debounced)
+            useEffect(() => {
+                if (firebaseInitialized && teams.length > 0) {
+                    const timer = setTimeout(() => {
+                        saveEventData();
+                    }, 1000); // Wait 1 second after last change
+                    return () => clearTimeout(timer);
+                }
+            }, [teams, notes]);
+
+            const loadSavedEventsList = async () => {
+                if (!db) return;
+                
+                try {
+                    const snapshot = await db.collection('events').get();
+                    const events = snapshot.docs.map(doc => ({
+                        code: doc.id,
+                        ...doc.data()
+                    }));
+                    setSavedEvents(events);
+                } catch (error) {
+                    console.error("Error loading events:", error);
+                }
+            };
+
+            const saveEventData = async () => {
+                if (!db || !eventCode || teams.length === 0) return;
+
+                setSaving(true);
+                try {
+                    const eventData = {
+                        code: eventCode,
+                        teams: teams,
+                        notes: notes,
+                        teamCount: teams.length,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    await db.collection('events').doc(eventCode).set(eventData);
+                    console.log(`✓ Saved ${teams.length} teams to cloud for ${eventCode}`);
+                    
+                    // Refresh events list
+                    await loadSavedEventsList();
+                } catch (error) {
+                    console.error("Error saving:", error);
+                    alert("Error saving to cloud. Check console.");
+                } finally {
+                    setSaving(false);
+                }
+            };
+
+            const loadEventData = async (code) => {
+                if (!db || !code) return;
+
+                setLoading(true);
+                try {
+                    const doc = await db.collection('events').doc(code).get();
+                    
+                    if (doc.exists) {
+                        const data = doc.data();
+                        setTeams(data.teams || []);
+                        setNotes(data.notes || {});
+                        console.log(`✓ Loaded ${data.teams?.length || 0} teams from cloud for ${code}`);
+                    } else {
+                        setTeams([]);
+                        setNotes({});
+                        console.log(`No cloud data for ${code}`);
+                    }
+                } catch (error) {
+                    console.error("Error loading:", error);
+                    setTeams([]);
+                    setNotes({});
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const switchEvent = (code) => {
+                setEventCode(code);
+                loadEventData(code);
+            };
+
+            const deleteEvent = async (code) => {
+                if (!confirm(`Delete all cloud data for ${code}?`)) return;
+
+                try {
+                    await db.collection('events').doc(code).delete();
+                    console.log(`✓ Deleted ${code} from cloud`);
+                    
+                    await loadSavedEventsList();
+                    
+                    if (eventCode === code) {
+                        setTeams([]);
+                        setNotes({});
+                    }
+                } catch (error) {
+                    console.error("Error deleting:", error);
+                    alert("Error deleting event");
+                }
+            };
+
+            const handleSort = (field) => {
+                if (sortField === field) {
+                    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                } else {
+                    setSortField(field);
+                    setSortDirection('desc');
+                }
+            };
+
+            const sortedTeams = [...teams].sort((a, b) => {
+                const aVal = a[sortField] || 0;
+                const bVal = b[sortField] || 0;
+                return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            const filteredTeams = sortedTeams.filter(team => 
+                team.number.toLowerCase().includes(filterText.toLowerCase()) ||
+                (team.name || '').toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            const getMetricClass = (value, field) => {
+                if (field === 'opr' || field === 'ccwm') {
+                    if (value > 40) return 'metric-high';
+                    if (value > 20) return 'metric-medium';
+                    return 'metric-low';
+                } else if (field === 'skills') {
+                    if (value > 100) return 'metric-high';
+                    if (value > 50) return 'metric-medium';
+                    return 'metric-low';
+                }
+                return '';
+            };
+
+            const handleNoteChange = (teamNumber, note) => {
+                setNotes({...notes, [teamNumber]: note});
+            };
+
+            const exportData = () => {
+                const csvContent = [
+                    ['Team', 'Name', 'OPR', 'DPR', 'CCWM', 'Avg Score', 'Skills', 'Matches', 'Notes'],
+                    ...filteredTeams.map(team => [
+                        team.number,
+                        team.name || '',
+                        (team.opr || 0).toFixed(2),
+                        (team.dpr || 0).toFixed(2),
+                        (team.ccwm || 0).toFixed(2),
+                        (team.avg_score || team.avgScore || 0).toFixed(1),
+                        team.skills || 0,
+                        team.matches || 0,
+                        notes[team.number] || ''
+                    ])
+                ].map(row => row.join(',')).join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vex-scout-${eventCode}-${Date.now()}.csv`;
+                a.click();
+            };
+
+            const loadCSV = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // Make sure event code is set
+                if (!eventCode || eventCode.trim() === '') {
+                    alert('Please enter an Event Code first!');
+                    return;
+                }
+
+                // Confirm which event we're importing to
+                const confirmImport = confirm(
+                    `Import data for event: ${eventCode}\n\n` +
+                    `This will save data to this event code.\n` +
+                    `Your other events will NOT be affected.\n\n` +
+                    `Continue?`
+                );
+
+                if (!confirmImport) {
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split('\n').slice(1);
+                    
+                    const parsedTeams = lines.filter(line => line.trim()).map(line => {
+                        const parts = line.split(',');
+                        const number = parts[0]?.trim() || '';
+                        const name = parts[1]?.trim() || '';
+                        const opr = parseFloat(parts[2]) || 0;
+                        const dpr = parseFloat(parts[3]) || 0;
+                        const ccwm = parseFloat(parts[4]) || 0;
+                        const avgScore = parseFloat(parts[5]) || 0;
+                        
+                        let skills, matches;
+                        if (parts.length > 8) {
+                            skills = parseInt(parts[7]) || 0;
+                            matches = parseInt(parts[8]) || 0;
+                        } else {
+                            skills = parseInt(parts[6]) || 0;
+                            matches = parseInt(parts[7]) || 0;
+                        }
+
+                        return {
+                            number,
+                            name,
+                            opr,
+                            dpr,
+                            ccwm,
+                            avgScore,
+                            skills,
+                            matches
+                        };
+                    });
+                    
+                    setTeams(parsedTeams);
+                    console.log(`✓ Imported ${parsedTeams.length} teams for event: ${eventCode}`);
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert(
+                            `✓ SUCCESS!\n\n` +
+                            `Imported ${parsedTeams.length} teams\n` +
+                            `Saved to event: ${eventCode}\n\n` +
+                            `This event is now in your saved events list.`
+                        );
+                    }, 1000);
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+
+            if (showSetup) {
+                return (
+                    <div className="min-h-screen p-6 flex items-center justify-center">
+                        <div className="max-w-3xl">
+                            <div className="setup-banner p-8 rounded-lg">
+                                <h1 className="text-4xl font-bold mb-4 text-red-400">⚠️ FIREBASE SETUP REQUIRED</h1>
+                                <p className="text-lg mb-6">This cloud version needs Firebase configuration. Follow these steps:</p>
+                                
+                                <div className="space-y-4 bg-black/30 p-6 rounded mb-6">
+                                    <div>
+                                        <div className="font-bold text-green-400 mb-2">STEP 1: Create Firebase Project</div>
+                                        <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>Go to <a href="https://console.firebase.google.com/" target="_blank" className="text-blue-400 underline">console.firebase.google.com</a></li>
+                                            <li>Click "Add Project" → Name it "VEX Scout"</li>
+                                            <li>Disable Google Analytics (not needed)</li>
+                                            <li>Click "Create Project"</li>
+                                        </ol>
+                                    </div>
+
+                                    <div>
+                                        <div className="font-bold text-green-400 mb-2">STEP 2: Enable Firestore</div>
+                                        <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>In Firebase Console, click "Firestore Database"</li>
+                                            <li>Click "Create Database"</li>
+                                            <li>Choose "Start in TEST MODE" (easier for now)</li>
+                                            <li>Choose your region → Click "Enable"</li>
+                                        </ol>
+                                    </div>
+
+                                    <div>
+                                        <div className="font-bold text-green-400 mb-2">STEP 3: Get Your Config</div>
+                                        <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>Go to Project Settings (gear icon) → General</li>
+                                            <li>Scroll to "Your apps" → Click Web icon (&lt;/&gt;)</li>
+                                            <li>Register app → Copy the firebaseConfig object</li>
+                                            <li>Open this HTML file in a text editor</li>
+                                            <li>Find "const firebaseConfig = {`{}`}" near line 170</li>
+                                            <li>Replace with your copied config</li>
+                                            <li>Save and reload this page</li>
+                                        </ol>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={() => window.location.reload()}
+                                    className="btn-primary px-6 py-3 rounded font-bold"
+                                >
+                                    I'VE ADDED MY CONFIG - RELOAD
+                                </button>
+
+                                <div className="mt-6 text-sm text-gray-400">
+                                    <p>📝 Need help? See FIREBASE_SETUP.md in the zip file</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen p-6">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Install Prompt */}
+                        {showInstallPrompt && (
+                            <div className="mb-6 bg-gradient-to-r from-green-900/40 to-green-800/40 border-2 border-green-500 p-4 rounded-lg flex items-center justify-between">
+                                <div className="flex-1">
+                                    <div className="font-bold text-green-400 mb-1">📱 Install VEX Scout</div>
+                                    <div className="text-sm text-gray-300">Add to home screen for quick access!</div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={handleInstallClick}
+                                        className="btn-primary px-4 py-2 rounded font-bold text-sm"
+                                    >
+                                        INSTALL
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowInstallPrompt(false)}
+                                        className="btn-secondary px-4 py-2 rounded font-bold text-sm"
+                                    >
+                                        LATER
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Header */}
+                        <div className="mb-8">
+                            <h1 className="text-5xl font-bold mb-2 header-glow" style={{fontFamily: 'Rajdhani, sans-serif'}}>
+                                VEX SCOUT CLOUD
+                            </h1>
+                            <p className="text-gray-400 text-sm">
+                                ☁️ CLOUD STORAGE • SYNC ACROSS DEVICES
+                                {saving && <span className="ml-4 text-green-400">💾 Saving...</span>}
+                            </p>
+                            {eventCode && teams.length > 0 && (
+                                <div className="mt-3 inline-block bg-green-900/30 border border-green-500 px-4 py-2 rounded">
+                                    <span className="text-green-400 font-bold">📍 Current Event: {eventCode}</span>
+                                    <span className="text-gray-400 ml-3">({teams.length} teams loaded)</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Saved Events */}
+                        {savedEvents.length > 0 && (
+                            <div className="stat-card p-4 rounded-lg mb-6">
+                                <div className="text-xs text-gray-400 mb-3 uppercase tracking-wide">
+                                    Cloud Events ({savedEvents.length})
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                    {savedEvents.map(evt => (
+                                        <div key={evt.code} 
+                                             className={`flex items-center justify-between p-3 rounded border transition-all ${evt.code === eventCode ? 'border-green-500 bg-green-900/20' : 'border-gray-600 bg-gray-800/30 hover:border-gray-500'}`}>
+                                            <div className="flex-1 cursor-pointer" onClick={() => switchEvent(evt.code)}>
+                                                <div className="font-bold text-sm text-green-400">{evt.code}</div>
+                                                <div className="text-xs text-gray-400">{evt.teamCount} teams</div>
+                                            </div>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); deleteEvent(evt.code); }}
+                                                className="ml-2 text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded hover:bg-red-900/20"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Controls */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+                            <div className="stat-card p-4 rounded-lg">
+                                <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Event Code</label>
+                                <input 
+                                    type="text"
+                                    value={eventCode}
+                                    onChange={(e) => {
+                                        setEventCode(e.target.value);
+                                        if (e.target.value.length >= 10) {
+                                            loadEventData(e.target.value);
+                                        }
+                                    }}
+                                    onBlur={() => loadEventData(eventCode)}
+                                    className="w-full px-3 py-2 rounded"
+                                    placeholder="RE-V5RC-25-0192"
+                                />
+                            </div>
+                            
+                            <div className="stat-card p-4 rounded-lg">
+                                <label className="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Filter Teams</label>
+                                <input 
+                                    type="text"
+                                    value={filterText}
+                                    onChange={(e) => setFilterText(e.target.value)}
+                                    className="w-full px-3 py-2 rounded"
+                                    placeholder="Search..."
+                                />
+                            </div>
+
+                            <div className="stat-card p-4 rounded-lg flex items-end">
+                                <label className="btn-secondary w-full px-4 py-2 rounded font-bold text-sm text-center cursor-pointer">
+                                    IMPORT CSV → {eventCode || '(set event code first)'}
+                                    <input 
+                                        type="file" 
+                                        accept=".csv"
+                                        onChange={loadCSV}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="stat-card p-4 rounded-lg flex items-end">
+                                <button 
+                                    onClick={exportData}
+                                    disabled={teams.length === 0}
+                                    className="btn-primary w-full px-4 py-2 rounded font-bold text-sm disabled:opacity-50"
+                                >
+                                    EXPORT CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div className="stat-card p-4 rounded-lg">
+                                <div className="text-2xl font-bold text-green-400">{teams.length}</div>
+                                <div className="text-xs text-gray-400 uppercase">Total Teams</div>
+                            </div>
+                            <div className="stat-card p-4 rounded-lg">
+                                <div className="text-2xl font-bold text-green-400">{filteredTeams.length}</div>
+                                <div className="text-xs text-gray-400 uppercase">Filtered</div>
+                            </div>
+                            <div className="stat-card p-4 rounded-lg">
+                                <div className="text-2xl font-bold text-green-400">
+                                    {teams.filter(t => (t.opr || 0) > 0).length}
+                                </div>
+                                <div className="text-xs text-gray-400 uppercase">With OPR</div>
+                            </div>
+                            <div className="stat-card p-4 rounded-lg">
+                                <div className="text-2xl font-bold text-green-400">
+                                    {Object.keys(notes).length}
+                                </div>
+                                <div className="text-xs text-gray-400 uppercase">Notes</div>
+                            </div>
+                        </div>
+
+                        {/* Table */}
+                        <div className="data-table rounded-lg overflow-hidden">
+                            {/* Mobile scroll hint */}
+                            <div className="md:hidden bg-blue-900/30 border-b border-blue-600/50 px-4 py-2 text-xs text-blue-300 text-center">
+                                ← Swipe left/right to see all columns →
+                            </div>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full" style={{minWidth: '800px'}}>
+                                    <thead>
+                                        <tr className="table-header">
+                                            <th className="px-4 py-3 text-left sortable sticky left-0 bg-opacity-100" style={{minWidth: '80px'}} onClick={() => handleSort('number')}>
+                                                TEAM {sortField === 'number' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-left" style={{minWidth: '150px'}}>NAME</th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '70px'}} onClick={() => handleSort('opr')}>
+                                                OPR {sortField === 'opr' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '70px'}} onClick={() => handleSort('dpr')}>
+                                                DPR {sortField === 'dpr' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '80px'}} onClick={() => handleSort('ccwm')}>
+                                                CCWM {sortField === 'ccwm' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '80px'}} onClick={() => handleSort('skills')}>
+                                                SKILLS {sortField === 'skills' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-center sortable" style={{minWidth: '90px'}} onClick={() => handleSort('matches')}>
+                                                MATCHES {sortField === 'matches' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-3 text-left" style={{minWidth: '200px'}}>NOTES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="8" className="px-4 py-12 text-center text-gray-400">
+                                                    <div className="text-lg">Loading from cloud...</div>
+                                                </td>
+                                            </tr>
+                                        ) : filteredTeams.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="8" className="px-4 py-12 text-center text-gray-400">
+                                                    <div className="text-lg mb-2">No data in cloud</div>
+                                                    <div className="text-sm">Import a CSV to upload to cloud</div>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            filteredTeams.map(team => (
+                                                <tr key={team.number} className="table-row">
+                                                    <td className="px-4 py-3 font-bold text-green-400">{team.number}</td>
+                                                    <td className="px-4 py-3 text-sm">{team.name || ''}</td>
+                                                    <td className={`px-4 py-3 text-center ${getMetricClass(team.opr, 'opr')}`}>
+                                                        {(team.opr || 0).toFixed(1)}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        {(team.dpr || 0).toFixed(1)}
+                                                    </td>
+                                                    <td className={`px-4 py-3 text-center font-bold ${getMetricClass(team.ccwm, 'ccwm')}`}>
+                                                        {(team.ccwm || 0).toFixed(1)}
+                                                    </td>
+                                                    <td className={`px-4 py-3 text-center ${getMetricClass(team.skills, 'skills')}`}>
+                                                        {team.skills || 0}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">{team.matches || 0}</td>
+                                                    <td className="px-4 py-3">
+                                                        <input
+                                                            type="text"
+                                                            value={notes[team.number] || ''}
+                                                            onChange={(e) => handleNoteChange(team.number, e.target.value)}
+                                                            className="w-full px-2 py-1 rounded text-sm"
+                                                            placeholder="Add notes..."
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-8 text-center text-gray-500 text-sm space-y-1">
+                            <p>☁️ Data automatically syncs to Firebase cloud</p>
+                            <p>📂 Each event code saves separately - import multiple events!</p>
+                            <p>🔄 Switch between events using the saved events bar above</p>
+                            <p>🔢 {filteredTeams.length} teams displayed • Click headers to sort</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<VEXScoutCloud />);
+
+        // Register service worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Inline service worker for single-file deployment
+                const swCode = `
+                    self.addEventListener('install', (event) => {
+                        console.log('Service Worker installing');
+                        self.skipWaiting();
+                    });
+
+                    self.addEventListener('activate', (event) => {
+                        console.log('Service Worker activating');
+                        return self.clients.claim();
+                    });
+
+                    self.addEventListener('fetch', (event) => {
+                        // Let Firebase and external resources pass through
+                        if (event.request.url.includes('firebasestorage') || 
+                            event.request.url.includes('googleapis') ||
+                            event.request.url.includes('cdn.')) {
+                            return fetch(event.request);
+                        }
+                        
+                        // Cache-first strategy for app shell
+                        event.respondWith(
+                            caches.match(event.request).then((response) => {
+                                return response || fetch(event.request);
+                            })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(reg => console.log('✓ Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
